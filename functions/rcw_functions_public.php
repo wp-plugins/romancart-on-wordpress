@@ -1,44 +1,4 @@
 <?php
-/*
-
-# SHORT CODE VALUES EXPLAINED
-MODES (uses special functions in plugin)
-1. Normal:
-2. StageOne:
-3. StageTwo:
-STYLE (layout and css)
-1. Default1: button only
-2. Default2: description,button
-3. Default3: description,image,button
-SOURCE (where content comes from) (not required - plugin will check both for a value if empty)
-1. Included: added to the shortcode
-2. Customfields: created in custom fields
-3. (blank): causes search of both included and customfields
-
-# POSSIBLE SOURCE DATA
-'mode' => normal,stageone,stagetwo (dont add any for default normal)
-'style' => default1,default2,default3 or dont add any for default1
-'source' => included,customfields,(or dont add any)
-'postid' => integer only, required for stages
-'itemname' => 'Product Name'
-'baseprice' => '0.00'
-'description' => text can be html also
-'image' => url path
-'storeid' => can be blank, will rely on a default if not set
-'pricevariation1' => '2.00' (not required)
-'buttontext' => (not required will rely on default)
-
-# EXAMPLE SHORT CODES
-[rcw_singleitem mode="normal" styles="default1" source="customfields"]   custom fields only
-[rcw_singleitem mode="normal" styles="default1" source="include"]   included only
-[rcw_singleitem mode="normal" styles="default1"]   both custom fields and included
-[rcw_singleitem mode="stage1" style="default" postid="344"]   DONE
-[rcw_multipleitems mode="normal" style="default"]	
-[rcw_multipleitems mode="stage1" style="default"  postid="344"]
-[rcw_multipleitems mode="stage2" style="default"]
-
-*/
-
 # Processes Detection Of Shortcode [rcw_singleitem mode="normal" style="default"]
 # Input: shortcode attributes
 # Output: Displays A Product Form With Either Action URL LOCAL Or To RomanCart
@@ -49,15 +9,35 @@ function rcw_singleitem_display($atts)
 		'style' => 'default1',
 		'postid' => '1',
 		'source' => 'search',
-		'itemname' => '',// default must be blank to trigger use of post title
+		'itemname' => '',
 		'baseprice' => '0.00',
 		'desc' => '',
 		'image' => '',
 		'storeid' => '38254',
-		'pricevariation1' => '2.00',
 		'buttontext' => 'Buy Now',
+		'v1n' => 'Variation Item 1',
+		'v1p' => '1.00',
+		'v2n' => 'Variation Item 2',
+		'v2p' => '2.00',
+		'v3n' => 'Variation Item 3',
+		'v3p' => '3.00',
+		'v4n' => 'Variation Item 4',
+		'v4p' => '4.00',
+		'v5n' => 'Variation Item 5',
+		'v5p' => '5.00',
+		'v6n' => 'Variation Item 6',
+		'v6p' => '6.00',
+		'v7n' => 'Variation Item 7',
+		'v7p' => '7.00',
+		'v8n' => 'Variation Item 8',
+		'v8p' => '8.00',
+		'v9n' => 'Variation Item 9',
+		'v9p' => '9.00',
+		'v10n' => 'Variation Item 10',
+		'v10p' => '10.00',
+		'variations' => 0,
 	), $atts));
-
+	
 	global $wpdb, $post;
 	
 	if ($post->ID) 
@@ -65,17 +45,23 @@ function rcw_singleitem_display($atts)
 		// if source is not "included" then get posts custom fields now
 		if( $source != 'included' )
 		{
-			$custom_fields = get_post_custom($post->ID);}
+			$custom_fields = get_post_custom($post->ID);
 	
 			if( $style == 'default1' )// itemname,baseprice required (no table)
 			{
 				// if custom_fields is set, indicates we need to use them - any not existing will cause the default shortcode  attributes
 				if( isset( $custom_fields ) )
 				{
+					// get standard values
 					$itemname = rcw_getproduct_itemname($custom_fields);
 					$baseprice = rcw_getproduct_baseprice($custom_fields);
 					$storeid = rcw_getproduct_storeid($custom_fields);
-					$pricevariation1 = rcw_getproduct_pricevariation1($custom_fields);
+					
+					// get variation number
+					$variations = rcw_getproduct_variations($custom_fields);
+					
+					// get all required custom fields
+					require_once('rcw_inc_getvariations.php');
 				}
 			}
 			elseif( $style == 'default2' )// itemname,baseprice and description required (small table)
@@ -86,7 +72,12 @@ function rcw_singleitem_display($atts)
 					$baseprice = rcw_getproduct_baseprice($custom_fields);
 					$desc = rcw_getproduct_desc($custom_fields);
 					$storeid = rcw_getproduct_storeid($custom_fields);
-					$pricevariation1 = rcw_getproduct_pricevariation1($custom_fields);
+					
+					// get variation number
+					$variations = rcw_getproduct_variations($custom_fields);
+					
+					// get all required custom fields
+					require_once('rcw_inc_getvariations.php');
 				}
 				
 			}
@@ -99,7 +90,12 @@ function rcw_singleitem_display($atts)
 					$desc = rcw_getproduct_desc($custom_fields);
 					$image = rcw_getproduct_image($custom_fields);
 					$storeid = rcw_getproduct_storeid($custom_fields);
-					$pricevariation1 = rcw_getproduct_pricevariation1($custom_fields);			
+					
+					// get variation number
+					$variations = rcw_getproduct_variations($custom_fields);
+					
+					// get all required custom fields
+					require_once('rcw_inc_getvariations.php');
 				}
 			}
 		}
@@ -118,34 +114,58 @@ function rcw_singleitem_display($atts)
 		# ALL PRODUCT VALUES MUST BE OBTAINED BEFORE HERE - NOW BUILD THE LAYOUT
 		if( $style == 'default1' )// itemname,baseprice required (no table)
 		{                      
-			$romancartdisplay = rcw_displayproduct_default1($mode,$actionurl,$baseprice,$storeid,$itemname,$postid,$buttontext,$pricevariation1);
+			$romancartdisplay = rcw_displayproduct_default1($mode,$actionurl,$baseprice,$storeid,$itemname,$postid,$buttontext,
+			$v1p,$v1n,$v2p,$v2n,$v3p,$v3n,$v4p,$v4n,$v5p,$v5n,$v6p,$v6n,$v7p,$v7n,$v8p,$v8n,$v9p,$v9n,$v10p,$v10n,$variations);
 		}
 		elseif( $style == 'default2' )// itemname,baseprice and description required (small table)
 		{
-			$romancartdisplay = rcw_displayproduct_default2($mode,$actionurl, $baseprice, $storeid, $itemname, $postid, $desc,$buttontext,$pricevariation1);
+			$romancartdisplay = rcw_displayproduct_default2($mode,$actionurl, $baseprice, $storeid, $itemname, $postid, $desc,$buttontext,
+			$v1p,$v1n,$v2p,$v2n,$v3p,$v3n,$v4p,$v4n,$v5p,$v5n,$v6p,$v6n,$v7p,$v7n,$v8p,$v8n,$v9p,$v9n,$v10p,$v10n,$variations);
 		}
 		elseif( $style == 'default3' )// itemname,baseprice,description and image required (full table)
 		{
-			$romancartdisplay = rcw_displayproduct_default3($mode,$actionurl, $baseprice, $storeid, $itemname, $postid, $desc, $image,$buttontext,$pricevariation1);
+			$romancartdisplay = rcw_displayproduct_default3($mode,$actionurl, $baseprice, $storeid, $itemname, $postid, $desc, $image,$buttontext,
+			$v1p,$v1n,$v2p,$v2n,$v3p,$v3n,$v4p,$v4n,$v5p,$v5n,$v6p,$v6n,$v7p,$v7n,$v8p,$v8n,$v9p,$v9n,$v10p,$v10n,$variations);
 		}
 
 		return @"{$romancartdisplay}";
+	}
 }
 
-
-# Gets The storeid From Custom Fields
-# Input: custom fields array
-# Output: returns the storeid if found
-function rcw_getproduct_pricevariation1($custom_fields)
+function rcw_getproduct_variationname($custom_fields,$count)
 {
-	@$rcw_pricevariation1 = $custom_fields['rcw_pricevariation1'];
-	if(isset($custom_fields['rcw_pricevariation1']))
+	$rcw_pricevariation1 = $custom_fields['rcw_v'.$count.'n'];
+	if(isset($custom_fields['rcw_v'.$count.'n']))
 	{
 		foreach ( $rcw_pricevariation1 as $key => $value )
 		{
-			$pricevariation1 = $value;
+			return $value;
 		}
-		return $pricevariation1;	
+	}
+}
+
+function rcw_getproduct_variationprice($custom_fields,$count)
+{
+	$rcw_pricevariation1 = $custom_fields['rcw_v'.$count.'p'];
+	if(isset($custom_fields['rcw_v'.$count.'p']))
+	{
+		foreach ( $rcw_pricevariation1 as $key => $value )
+		{
+			return $value;
+		}
+	}
+}
+
+# Returns The Number Of Variations Expected For An Item
+function rcw_getproduct_variations($custom_fields)
+{
+	$rcw_variations = $custom_fields['rcw_variations'];
+	if(isset($custom_fields['rcw_variations']))
+	{
+		foreach ( $rcw_variations as $key => $value )
+		{
+			return $value;
+		}
 	}
 }
 
@@ -154,7 +174,7 @@ function rcw_getproduct_pricevariation1($custom_fields)
 # Output: returns the storeid if found
 function rcw_getproduct_storeid($custom_fields)
 {
-	@$rcw_storeid = $custom_fields['rcw_storeid'];
+	$rcw_storeid = $custom_fields['rcw_storeid'];
 	if(isset($custom_fields['rcw_storeid']))
 	{
 		foreach ( $rcw_storeid as $key => $value )
@@ -170,7 +190,7 @@ function rcw_getproduct_storeid($custom_fields)
 # Output: returns the image if found
 function rcw_getproduct_image($custom_fields)
 {
-	@$rcw_image = $custom_fields['rcw_image'];
+	$rcw_image = $custom_fields['rcw_image'];
 	if(isset($custom_fields['rcw_image']))
 	{
 		foreach ( $rcw_image as $key => $value )
@@ -186,7 +206,7 @@ function rcw_getproduct_image($custom_fields)
 # Output: returns the desc if found
 function rcw_getproduct_desc($custom_fields)
 {
-	@$rcw_desc = $custom_fields['rcw_desc'];
+	$rcw_desc = $custom_fields['rcw_desc'];
 	if(isset($custom_fields['rcw_desc']))
 	{
 		foreach ( $rcw_desc as $key => $value )
@@ -202,7 +222,7 @@ function rcw_getproduct_desc($custom_fields)
 # Output: returns the itemname if found
 function rcw_getproduct_itemname($custom_fields)
 {
-	@$rcw_itemname = $custom_fields['rcw_itemname'];
+	$rcw_itemname = $custom_fields['rcw_itemname'];
 	if(isset($custom_fields['rcw_itemname']))
 	{
 		foreach ( $rcw_itemname as $key => $value )
@@ -218,7 +238,7 @@ function rcw_getproduct_itemname($custom_fields)
 # Output: returns the base price if found
 function rcw_getproduct_baseprice($custom_fields)
 {
-	@$rcw_baseprice = $custom_fields['rcw_baseprice'];
+	$rcw_baseprice = $custom_fields['rcw_baseprice'];
 	if(isset($custom_fields['rcw_baseprice']))
 	{
 		foreach ( $rcw_baseprice as $key => $value )
@@ -237,17 +257,18 @@ function rcw_returnpagetype(){global $post;if(is_front_page()||is_home()){return
 # Ouput: new widget available for sidebar and basket totals etc
 function rcw_widget_basket($args)
 {
-	$rcw = get_option( 'rcw_settings' );
+	$rcw = get_option('rcw_settings');
 	$pagetype = rcw_returnpagetype();
 
 	// extracts before_widget,before_title,after_title,after_widget all required and cannot be deleted
 	extract($args); 
-	echo $before_widget . $before_title . ' Videos ' . $after_title;
+	echo $before_widget . $before_title . ' '. $rcw['widgetone']['title'] .' ' . $after_title;
 	
 	// display different cart values depending on users settings
-	echo '<SCRIPT LANGUAGE="JavaScript" SRC="http://www.romancart.com/cartinfo.asp?storeid=38254&type=1"></SCRIPT><br />
-	<SCRIPT LANGUAGE="JavaScript" SRC="http://www.romancart.com/cartinfo.asp?storeid=38254&type=2"></SCRIPT><br />
-	<SCRIPT LANGUAGE="JavaScript" SRC="http://www.romancart.com/cartinfo.asp?storeid=38254&type=3"></SCRIPT><br />';
+	echo '<br />
+	Items: <SCRIPT LANGUAGE="JavaScript" SRC="http://www.romancart.com/cartinfo.asp?storeid=38254&type=1"></SCRIPT><br />
+	Total: <SCRIPT LANGUAGE="JavaScript" SRC="http://www.romancart.com/cartinfo.asp?storeid=38254&type=2"></SCRIPT><br />
+	Total: <SCRIPT LANGUAGE="JavaScript" SRC="http://www.romancart.com/cartinfo.asp?storeid=38254&type=3"></SCRIPT>';
 	
 	/*  THESE ARE OTHER VALUES - I THINK ITS TAX AND TOTAL WITHOUT TAX - WILL BE IN USE WHEN SETTINGS PROVIDED
 	<SCRIPT LANGUAGE="JavaScript" SRC="http://www.romancart.com/cartinfo.asp?storeid=38254&type=4"></SCRIPT><br />

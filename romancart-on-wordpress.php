@@ -1,7 +1,7 @@
 <?php
 /*
-	Plugin Name: <a href="http://www.webtechglobal.co.uk/services/downloads/romancart-on-wordpress-plugin">RomanCart On Wordpress</a>
-	Version: 0.0.1
+	Plugin Name: <a href="http://www.webtechglobal.co.uk/wp-login.php">RomanCart On Wordpress</a>
+	Version: 0.0.2
 	Plugin URI: http://www.webtechglobal.co.uk/services/downloads/romancart-on-wordpress-plugin
 	Description: RomanCart on Wordpress is easy to use, simply add product information to a shortcode and save. Your product will be displayed instantly. Use widget to display cart information.
 	Author: Ryan Bayne
@@ -24,6 +24,9 @@ function rcw_subpage3(){rcw_commonincludes();require_once('rcw_updates.php');}
 function rcw_subpage4(){rcw_commonincludes();require_once('rcw_guide.php');}
 function rcw_subpage5(){rcw_commonincludes();require_once('rcw_create.php');}
 function rcw_subpage6(){rcw_commonincludes();require_once('rcw_forum.php');}
+function rcw_subpage7(){rcw_commonincludes();require_once('rcw_edit.php');}
+function rcw_subpage8(){rcw_commonincludes();require_once('rcw_tutorials.php');}
+function rcw_subpage9(){rcw_commonincludes();require_once('rcw_tools.php');}
 
 // plugin admin pages
 function rcw_createmenu() 
@@ -36,12 +39,15 @@ function rcw_createmenu()
 	$per = 10;
 	
 	add_menu_page('RomanCart', 'RomanCart', $per, __FILE__, 'rcw_toppage1');
+    add_submenu_page(__FILE__, 'Create Product', 'Create Product', $per, 'rcw_create', 'rcw_subpage5');
+    add_submenu_page(__FILE__, 'Edit Product', 'Edit Product', $per, 'rcw_edit', 'rcw_subpage7');
 	add_submenu_page(__FILE__, 'Settings', 'Settings', $per, 'rcw_settings', 'rcw_subpage1');
-    add_submenu_page(__FILE__, 'Developer Notes', 'Developer Notes', $per, 'rcw_developer', 'rcw_subpage2');
+	add_submenu_page(__FILE__, 'Tools', 'Tools', $per, 'rcw_tools', 'rcw_subpage9');
     add_submenu_page(__FILE__, 'Plugin Updates', 'Plugin Updates', $per, 'rcw_updates', 'rcw_subpage3');
     add_submenu_page(__FILE__, 'Plugin Forum', 'Plugin Forum', $per, 'rcw_forum', 'rcw_subpage6');
-    add_submenu_page(__FILE__, 'User Manual', 'User Manual', $per, 'rcw_guide', 'rcw_subpage4');
-    add_submenu_page(__FILE__, 'Create Product', 'Create Product', $per, 'rcw_create', 'rcw_subpage5');
+    add_submenu_page(__FILE__, 'Plugin Tutorials', 'Plugin Tutorials', $per, 'rcw_tutorials', 'rcw_subpage8');
+    add_submenu_page(__FILE__, 'Plugin Guide', 'Plugin Guide', $per, 'rcw_guide', 'rcw_subpage4');
+	add_submenu_page(__FILE__, 'Developer Notes', 'Developer Notes', $per, 'rcw_developer', 'rcw_subpage2');
 }
 
 // includes the most common function files - I try to avoid calling all functions when not needed
@@ -55,7 +61,7 @@ function rcw_commonincludes()
 // plugin installation
 function rcw_installation() 
 {	
-	rcw_commonincludes();
+	require_once('functions/rcw_functions_installation.php');
 	rcw_insert_pluginsettings();	
 }		
 

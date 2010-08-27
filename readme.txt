@@ -20,6 +20,20 @@ Standard Wordpress upload
 
 == Changelog ==
 
+= 0.0.2 =
+* Released 27th August 2010
+* Add tools page with uninstallation button
+* Now has product edit page with optional views
+* Renamed user manual page to plugin guide
+* Added video tutorials page
+* New attribute for controlling variation number
+* 10 possible variations added
+* Renamed variation variables
+* Customfields source option functions added
+* Improved widget display.
+* Corrected error on installation.
+* Settings now available on settings page.
+
 = 0.0.1 =
 * Released 20th August 2010
 

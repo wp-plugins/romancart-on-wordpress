@@ -1,4 +1,167 @@
 <?php
+# Builds The Form For A Single Product With Button And Variation Menu If Required - No Table, No Image, No Description
+# Input: $actionurl, $baseprice, $storeid, $itemname, $postid (if required),$pricevariation,$buttontext,$pricevariation1(will need to be an array eventually)
+# Output: returns built form, the display is done by shortcode function
+function rcw_displayproduct_default1($mode,$actionurl,$baseprice,$storeid,$itemname,$postid,$buttontext,
+$v1p,$v1n,$v2p,$v2n,$v3p,$v3n,$v4p,$v4n,$v5p,$v5n,$v6p,$v6n,$v7p,$v7n,$v8p,$v8n,$v9p,$v9n,$v10p,$v10n,$variations)
+{
+	$romancartform = '
+	<form action="'.$actionurl.'" method="post">
+		<input name="price" type="hidden" value="'.$baseprice.'" /> 
+		<input name="storeid" type="hidden" value="'.$storeid.'" /> 
+		<input name="itemname" type="hidden" value="'.$itemname.'" />'.$itemname.':';
+
+		// if this is a stage 1 submission then include the post id for 2nd stage
+		if($mode=='stage1' && isset($postid) && !empty($postid))
+		{
+			$romancartform .= '<input name="rcw_secondstagepostid" type="hidden" value="'.$postid.'" /> ';	
+		}
+		elseif( $mode == 'stage1' && !isset($postid) || $mode=='stage1' && empty( $postid ) )
+		{
+			rcw_err('Post ID Missing','There has been error in the multiple stage system for RomanCart. Please seek support and report this issue, thank you for your patience.');
+		}
+		
+		// does the user require variation menu one ?
+		if( $variations > 0 )
+		{
+			$romancartform .= '<select name="itemname2">';				
+			
+			// get current posts custom fields - we use loop but we only need one of each custom field
+			$custom_fields = get_post_custom($postid);
+			
+			// include script that adds each menu item
+			require('rcw_inc_addvariations.php');
+							
+			$romancartform .= '
+				</select><br />';
+		}
+		elseif( $variations == 0 )
+		{
+			$rcw = get_option('rcw_settings');
+			// display a standard price without any menu
+			$romancartform .= '<br />Price:' . $rcw['currency']['symbol'] . $baseprice;
+		}
+			
+		$romancartform .= '<br />Quantity: <select name="quantity"> 
+				<option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option> 
+			</select> <input name="rcw_productsubmission" type="submit" value="'.$buttontext.'" /> 
+		</form>';
+	return $romancartform;
+}
+
+# Builds The Form For A Single Product With Button And Variation Menu If Required - Has Table, Has Description ($desc), No Image
+# Input: $actionurl, $baseprice, $storeid, $itemname, $postid (if required),$pricevariation,$buttontext,$pricevariation1(will need to be an array eventually),$desc
+# Output: returns built form, the display is done by shortcode function
+function rcw_displayproduct_default2($mode,$actionurl,$baseprice,$storeid,$itemname,$postid,$desc,$buttontext,
+$v1p,$v1n,$v2p,$v2n,$v3p,$v3n,$v4p,$v4n,$v5p,$v5n,$v6p,$v6n,$v7p,$v7n,$v8p,$v8n,$v9p,$v9n,$v10p,$v10n,$variations)
+{
+	
+	// add descriotion - for not now keeping it very simple
+	$romancartform = $desc;
+	
+	$romancartform = '
+	<form action="'.$actionurl.'" method="post">
+		<input name="price" type="hidden" value="'.$baseprice.'" /> 
+		<input name="storeid" type="hidden" value="'.$storeid.'" /> 
+		<input name="itemname" type="hidden" value="'.$itemname.'" />'.$itemname.':';
+
+		// if this is a stage 1 submission then include the post id for 2nd stage
+		if($mode=='stage1' && isset($postid) && !empty($postid))
+		{
+			$romancartform .= '<input name="rcw_secondstagepostid" type="hidden" value="'.$postid.'" /> ';	
+		}
+		elseif( $mode == 'stage1' && !isset($postid) || $mode=='stage1' && empty( $postid ) )
+		{
+			rcw_err('Post ID Missing','There has been error in the multiple stage system for RomanCart. Please seek support and report this issue, thank you for your patience.');
+		}
+		
+		// does the user require variation menu one ?
+		if( $variations > 0 )
+		{
+			$romancartform .= '<select name="itemname2">';				
+			
+			// get current posts custom fields - we use loop but we only need one of each custom field
+			$custom_fields = get_post_custom($postid);
+					
+			// include script that adds each menu item
+			require('rcw_addvariations.php');
+							
+			$romancartform .= '
+				</select><br />';
+		}
+			
+		$romancartform .= '
+			Quantity
+			<select name="quantity"> 
+				<option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option> 
+			</select><br />
+			<input name="rcw_productsubmission" type="submit" value="'.$buttontext.'" /> 
+		</form>';
+	return $romancartform;
+}
+
+# Builds The Form And Table For A Single Product With Button And Variation Menu If Required - Has Table, Has Description ($desc), Has Image
+# Input: $actionurl, $baseprice, $storeid, $itemname, $postid (if required),$pricevariation,$buttontext,$pricevariation1(will need to be an array eventually),$desc, $image
+# Output: returns built form, the display is done by shortcode function
+function rcw_displayproduct_default3($mode,$actionurl,$baseprice,$storeid,$itemname,$postid,$desc,$image,$buttontext,
+$v1p,$v1n,$v2p,$v2n,$v3p,$v3n,$v4p,$v4n,$v5p,$v5n,$v6p,$v6n,$v7p,$v7n,$v8p,$v8n,$v9p,$v9n,$v10p,$v10n,$variations)
+{
+	$romancartform = '
+	<form action="'.$actionurl.'" method="post">
+		<input name="price" type="hidden" value="'.$baseprice.'" /> 
+		<input name="storeid" type="hidden" value="'.$storeid.'" /> 
+		<input name="itemname" type="hidden" value="'.$itemname.'" />'.$itemname.':';
+
+		// if this is a stage 1 submission then include the post id for 2nd stage
+		if($mode=='stage1' && isset($postid) && !empty($postid))
+		{
+			$romancartform .= '<input name="rcw_secondstagepostid" type="hidden" value="'.$postid.'" /> ';	
+		}
+		elseif( $mode == 'stage1' && !isset($postid) || $mode=='stage1' && empty( $postid ) )
+		{
+			rcw_err('Post ID Missing','There has been error in the multiple stage system for RomanCart. Please seek support and report this issue, thank you for your patience.');
+		}
+		
+		// does the user require variation menu one ?
+		if( $variations > 0 )
+		{
+			$romancartform .= '<select name="itemname2">';				
+			
+			// get current posts custom fields - we use loop but we only need one of each custom field
+			$custom_fields = get_post_custom($postid);
+					
+			// include script that adds each menu item
+			require('rcw_addvariations.php');
+							
+			$romancartform .= '
+				</select><br />';
+		}
+			
+		$romancartform .= '
+			Quantity
+			<select name="quantity"> 
+				<option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option> 
+			</select><br />
+			<input name="rcw_productsubmission" type="submit" value="'.$buttontext.'" /> 
+		</form>';
+	
+	// add descriotion - for not now keeping it very simple
+	$romancartform = '
+	<table border="0" width="592">
+		<tbody>
+		<tr>
+		<td width="178"><img src="'.$image.'" alt="" '. rcw_getimagewidth() . rcw_getimageheight() .' /></td>
+		<td width="398">'.$desc.'
+		
+		'.$productdisplay.'</td>
+		</tr>
+		</tbody>
+	</table>';
+
+	
+	return $romancartform;
+}
+
 # New Product Form - Displays The Common Fields For Creating A New Product
 function rcw_newproduct_formstart()
 {
@@ -11,9 +174,38 @@ function rcw_newproduct_formstart()
 
 # Displays Controls For Creation Item Variation/Options With Name And Price Increase
 function rcw_variationlist_fields()
-{
-	echo '<label>Variation One Name:<input name="rcw_varprice1_name" type="text" value="" size="20" maxlength="20" /></label>      
-	<label>Variation One Price:<input name="rcw_varprice1_value" type="text" value="" size="20" maxlength="20" /></label>';      
+{	
+	echo '
+	<label>Variation 1 Name:<input name="rcw_v1n" type="text" value="" size="20" maxlength="20" /></label>      
+	<label>Variation 1 Price:<input name="rcw_v1p" type="text" value="" size="20" maxlength="20" /></label>
+	<br />
+	<label>Variation 2 Name:<input name="rcw_v2n" type="text" value="" size="20" maxlength="20" /></label>      
+	<label>Variation 2 Price:<input name="rcw_v2p" type="text" value="" size="20" maxlength="20" /></label>
+	<br />
+	<label>Variation 3 Name:<input name="rcw_v3n" type="text" value="" size="20" maxlength="20" /></label>      
+	<label>Variation 3 Price:<input name="rcw_v3p" type="text" value="" size="20" maxlength="20" /></label>
+	<br />
+	<label>Variation 4 Name:<input name="rcw_v4n" type="text" value="" size="20" maxlength="20" /></label>      
+	<label>Variation 4 Price:<input name="rcw_v4p" type="text" value="" size="20" maxlength="20" /></label>
+	<br />
+	<label>Variation 5 Name:<input name="rcw_v5n" type="text" value="" size="20" maxlength="20" /></label>      
+	<label>Variation 5 Price:<input name="rcw_v5p" type="text" value="" size="20" maxlength="20" /></label>
+	<br />
+	<label>Variation 6 Name:<input name="rcw_v6n" type="text" value="" size="20" maxlength="20" /></label>      
+	<label>Variation 6 Price:<input name="rcw_v6p" type="text" value="" size="20" maxlength="20" /></label>
+	<br />
+	<label>Variation 7 Name:<input name="rcw_v7n" type="text" value="" size="20" maxlength="20" /></label>      
+	<label>Variation 7 Price:<input name="rcw_v7p" type="text" value="" size="20" maxlength="20" /></label>
+	<br />
+	<label>Variation 8 Name:<input name="rcw_v8n" type="text" value="" size="20" maxlength="20" /></label>      
+	<label>Variation 8 Price:<input name="rcw_v8p" type="text" value="" size="20" maxlength="20" /></label>
+	<br />
+	<label>Variation 9 Name:<input name="rcw_v9n" type="text" value="" size="20" maxlength="20" /></label>      
+	<label>Variation 9 Price:<input name="rcw_v9p" type="text" value="" size="20" maxlength="20" /></label>
+	<br />
+	<label>Variation 10 Name:<input name="rcw_v10n" type="text" value="" size="20" maxlength="20" /></label>      
+	<label>Variation 10 Price:<input name="rcw_v10p" type="text" value="" size="20" maxlength="20" /></label>
+	';      
 }
 
 # Mode Attribute Menu - Displays Menu For Selecting Mode
@@ -59,157 +251,6 @@ function rcw_buttontext_menu()
             <option value="Add To Shopping Basket">Add To Shopping Basket</option>
         </select></label>';
 }        
-
-# Builds The Form For A Single Product With Button And Variation Menu If Required - No Table, No Image, No Description
-# Input: $actionurl, $baseprice, $storeid, $itemname, $postid (if required),$pricevariation,$buttontext,$pricevariation1(will need to be an array eventually)
-# Output: returns built form, the display is done by shortcode function
-function rcw_displayproduct_default1($mode,$actionurl,$baseprice,$storeid,$itemname,$postid,$buttontext,$pricevariation1)
-{
-	$romancartform = '
-	<form action="'.$actionurl.'" method="post">
-		<input name="price" type="hidden" value="'.$baseprice.'" /> 
-		<input name="storeid" type="hidden" value="'.$storeid.'" /> 
-		<input name="itemname" type="hidden" value="'.$itemname.'" />'.$itemname.':';
-
-		// if this is a stage 1 submission then include the post id for 2nd stage
-		if($mode=='stage1' && isset($postid) && !empty($postid))
-		{
-			$romancartform .= '<input name="rcw_secondstagepostid" type="hidden" value="'.$postid.'" /> ';	
-		}
-		elseif( $mode == 'stage1' && !isset($postid) || $mode=='stage1' && empty( $postid ) )
-		{
-			rcw_err('Post ID Missing','There has been error in the multiple stage system for RomanCart. Please seek support and report this issue, thank you for your patience.');
-		}
-		
-		$romancartform .= '<select name="itemname2">';				
-		
-		// get current posts custom fields - we use loop but we only need one of each custom field
-		$custom_fields = get_post_custom($postid);
-		
-		$variationtotal = $baseprice + $pricevariation1;
-		
-		$romancartform .= '
-			<option value="Birmingham {00.00}">Birmingham (&pound;'.$baseprice.' + VAT)</option> 
-			<option value="Coventry (inc Stoneleigh &amp; Ricoh) {00.00}">Coventry (inc Stoneleigh &amp; Ricoh) (&pound;'.$baseprice.' + VAT)</option> 
-			<option value="Manchester {'.$pricevariation1.'}">Manchester (&pound;'.$variationtotal.' + VAT)</option> 
-			<option value="London {'.$pricevariation1.'}">London (&pound;'.$variationtotal.' + VAT)</option>
-			<option value="Other {'.$pricevariation1.'}">Other (&pound;'.$variationtotal.' + VAT)</option> 
-			</select><br />
-			Quantity
-			<select name="quantity"> 
-				<option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option> 
-			</select><br />
-			<input name="rcw_productsubmission" type="submit" value="'.$buttontext.'" /> 
-		</form>';
-	return $romancartform;
-}
-
-# Builds The Form For A Single Product With Button And Variation Menu If Required - Has Table, Has Description ($desc), No Image
-# Input: $actionurl, $baseprice, $storeid, $itemname, $postid (if required),$pricevariation,$buttontext,$pricevariation1(will need to be an array eventually),$desc
-# Output: returns built form, the display is done by shortcode function
-function rcw_displayproduct_default2($mode,$actionurl,$baseprice,$storeid,$itemname,$postid,$desc,$buttontext,$pricevariation1)
-{
-	
-	// add descriotion - for not now keeping it very simple
-	$romancartform = $desc;
-	
-	$romancartform .= '
-	<form action="'.$actionurl.'" method="post">
-		<input name="price" type="hidden" value="'.$baseprice.'" /> 
-		<input name="storeid" type="hidden" value="'.$storeid.'" /> 
-		<input name="itemname" type="hidden" value="'.$itemname.'" />'.$itemname.':';
-
-		// if this is a stage 1 submission then include the post id for 2nd stage
-		if($mode=='stage1' && isset($postid) && !empty($postid))
-		{
-			$romancartform .= '<input name="rcw_secondstagepostid" type="hidden" value="'.$postid.'" /> ';	
-		}
-		elseif( $mode == 'stage1' && !isset($postid) || $mode=='stage1' && empty( $postid ) )
-		{
-			rcw_err('Post ID Missing','There has been error in the multiple stage system for RomanCart. Please seek support and report this issue, thank you for your patience.');
-		}
-		
-		$romancartform .= '<select name="itemname2">';				
-		
-		// get current posts custom fields - we use loop but we only need one of each custom field
-		$custom_fields = get_post_custom($postid);
-		
-		$variationtotal = $baseprice + $pricevariation1;
-		
-		$romancartform .= '
-			<option value="Birmingham {00.00}">Birmingham (&pound;'.$baseprice.' + VAT)</option> 
-			<option value="Coventry (inc Stoneleigh &amp; Ricoh) {00.00}">Coventry (inc Stoneleigh &amp; Ricoh) (&pound;'.$baseprice.' + VAT)</option> 
-			<option value="Manchester {'.$pricevariation1.'}">Manchester (&pound;'.$variationtotal.' + VAT)</option> 
-			<option value="London {'.$pricevariation1.'}">London (&pound;'.$variationtotal.' + VAT)</option>
-			<option value="Other {'.$pricevariation1.'}">Other (&pound;'.$variationtotal.' + VAT)</option> 
-			</select><br />
-			Quantity
-			<select name="quantity"> 
-				<option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option> 
-			</select><br />
-			<input name="rcw_productsubmission" type="submit" value="'.$buttontext.'" /> 
-		</form>';
-		
-	return $romancartform;
-}
-
-# Builds The Form And Table For A Single Product With Button And Variation Menu If Required - Has Table, Has Description ($desc), Has Image
-# Input: $actionurl, $baseprice, $storeid, $itemname, $postid (if required),$pricevariation,$buttontext,$pricevariation1(will need to be an array eventually),$desc, $image
-# Output: returns built form, the display is done by shortcode function
-function rcw_displayproduct_default3($mode,$actionurl,$baseprice,$storeid,$itemname,$postid,$desc,$image,$buttontext,$pricevariation1)
-{		
-	$productdisplay = '<form action="'.$actionurl.'" method="post">
-		<input name="price" type="hidden" value="'.$baseprice.'" /> 
-		<input name="storeid" type="hidden" value="'.$storeid.'" /> 
-		<input name="itemname" type="hidden" value="'.$itemname.'" />'.$itemname.':';
-
-		// if this is a stage 1 submission then include the post id for 2nd stage
-		if($mode=='stage1' && isset($postid) && !empty($postid))
-		{
-			$productdisplay .= '<input name="rcw_secondstagepostid" type="hidden" value="'.$postid.'" /> ';	
-		}
-		elseif( $mode == 'stage1' && !isset($postid) || $mode=='stage1' && empty( $postid ) )
-		{
-			rcw_err('Post ID Missing','There has been error in the multiple stage system for RomanCart. Please seek support and report this issue, thank you for your patience.');
-		}
-		
-		$productdisplay .= '<select name="itemname2">';				
-		
-		// get current posts custom fields - we use loop but we only need one of each custom field
-		$custom_fields = get_post_custom($postid);
-		
-		$variationtotal = $baseprice + $pricevariation1;
-		
-		$productdisplay .= '
-			<option value="Birmingham {00.00}">Birmingham (&pound;'.$baseprice.' + VAT)</option> 
-			<option value="Coventry (inc Stoneleigh &amp; Ricoh) {00.00}">Coventry (inc Stoneleigh &amp; Ricoh) (&pound;'.$baseprice.' + VAT)</option> 
-			<option value="Manchester {'.$pricevariation1.'}">Manchester (&pound;'.$variationtotal.' + VAT)</option> 
-			<option value="London {'.$pricevariation1.'}">London (&pound;'.$variationtotal.' + VAT)</option>
-			<option value="Other {'.$pricevariation1.'}">Other (&pound;'.$variationtotal.' + VAT)</option> 
-			</select><br />
-			Quantity
-			<select name="quantity"> 
-				<option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option> 
-			</select><br />
-			<input name="rcw_productsubmission" type="submit" value="'.$buttontext.'" /> 
-		</form>';
-	
-	// add descriotion - for not now keeping it very simple
-	$romancartform = '
-	<table border="0" width="592">
-		<tbody>
-		<tr>
-		<td width="178"><img src="'.$image.'" alt="" '. rcw_getimagewidth() . rcw_getimageheight() .' /></td>
-		<td width="398">'.$desc.'
-		
-		'.$productdisplay.'</td>
-		</tr>
-		</tbody>
-	</table>';
-
-	
-	return $romancartform;
-}
 
 # Creates "width=" Attribute Value For Use In Product Table
 # Input:
@@ -268,18 +309,15 @@ function rcw_header($title,$tutorialurl,$tutorialname)
 
 function rcw_footer()
 {?>
-	<p>Developed By <a href="http://www.brighterwebs.eu" title="Visit BrighterWebs, the plugin author website">BrighterWebs 2010</a></p> 
-   <script type="text/javascript">
-        // <![CDATA[
+    <p>Developed By <a href="http://www.webtechglobal.eu" title="Visit WebTechGlobal, the plugin author website">WebTechGlobal Ltd</a></p> 
+    <script type="text/javascript">// <![CDATA[
         jQuery('.postbox div.handlediv').click( function() { jQuery(jQuery(this).parent().get(0)).toggleClass('closed'); } );
         jQuery('.postbox h3').click( function() { jQuery(jQuery(this).parent().get(0)).toggleClass('closed'); } );
         jQuery('.postbox.close-me').each(function(){
         jQuery(this).addClass("closed");
-        });
-        //-->
+        });//-->
     </script><?php
-	$wtgdebug=1;
-	if($wtgdebug==1){echo'<h2>Debuggin Data</h2>';$rcw=get_option('rcw_settings' );print"<pre>";print_r($rcw);print"</pre>";}
+    $wtgdebug=0;if($wtgdebug==1){echo'<h2>Debuggin Data</h2>';$rcw=get_option('rcw_settings' );print"<pre>";print_r($rcw);print"</pre>";}
 }	
 
 # Outputs A Standard/Success Message
