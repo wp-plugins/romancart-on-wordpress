@@ -1,5 +1,5 @@
 === Plugin Name ===
-Contributors: Ryan Bayne
+Contributors: Zara Walsh
 Donate link: http://www.webtechglobal.co.uk/services/downloads/romancart-on-wordpress-plugin
 Tags: RomanCart,Roman,Cart,eCommerce,Shopping,Basket
 Requires at least: 3.0.1
